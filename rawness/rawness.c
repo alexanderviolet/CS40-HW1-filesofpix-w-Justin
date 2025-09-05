@@ -4,14 +4,37 @@
  * CS40: Lab 1
  */
 #include <stdio.h>
+#include <stdlib.h>
+#include <pnmrdr.h>
 
 int main(int argc, char *argv[])
 {
-        /* To elimate warnings */
-        (void)argc;
-        (void)argv;
+        /* Check to see if you have enough arguments*/
+        printf("The number of arguments %d\n", argc);
+        if (argc <= 1)
+        {
+                fprintf(stderr, "Error: Too few arguments\n");
+                exit(EXIT_FAILURE);
+        }
 
-        printf("Hello World!\n");
+        /* Try to open a file */
+        FILE *fptr;
+        fptr = fopen(argv[1], "r");
+
+        /* Error check to ensure file works */
+        /* TODO */
+
+        /* Check to see if file opened SHOULD FAIL */
+        if (fptr == NULL)
+        {
+                printf("The file did not open!\n");
+        }
+        else
+        {
+                printf("The file %s was opened!\n", argv[1]);
+        }
+
+        fclose(fptr);
 
         return 0;
 }
