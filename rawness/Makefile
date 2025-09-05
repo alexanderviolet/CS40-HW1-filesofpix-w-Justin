@@ -1,4 +1,4 @@
-# 	           Makefile for CS 40 Homework 1
+# 	         Makefile for CS 40 Lab 1
 #
 #     Author: Noah Mendelsohn (adapted from Norman Ramsey's compile script)
 #
@@ -10,7 +10,7 @@
 #
 
 # Executables to built using "make all"
-EXECUTABLES = restoration
+EXECUTABLES = rawness
 
 #
 #  The following is a compromise. You MUST list all your .h files here.
@@ -32,11 +32,13 @@ HANSON = /usr/sup/cii40
 
 # Updating include path to use current directory
 # (which is .), Comp 40 .h files, and CII interfaces
-IFLAGS = -I. -I$(COMP40)/build/include -I$(HANSON)/include/cii 
+IFLAGS = -I. -I$(COMP40)/build/include -I$(HANSON)/include/cii
 
 
-# the next line enables you to compile and link against course software
+# the next three lines enable you to compile and link against course software
 CFLAGS =  -g -std=c99 -Wall -Wextra -Werror -Wfatal-errors -pedantic $(IFLAGS)
+LIBS = $(CIILIBS) -lm    
+LFLAGS = -L$(COMP40)/build/lib
 
 # Linking flags, used in the linking step
 # Set debugging information and update linking path
@@ -77,15 +79,10 @@ clean:
 #    Those .o files are linked together to build the corresponding
 #    executable.
 #
-restoration: restoration.o readaline.o
-	$(CC) $(LDFLAGS) -o restoration  restoration.o readaline.o $(LDLIBS)
-# TODO: we are TEMPORARILY commenting this out PLEASE RETURN TO ORIGINAL STATE ONCE DONE MESSING AROUND WITH PART A
+rawness: rawness.o 
+	$(CC) $(LDFLAGS) -o rawness  rawness.o $(LDLIBS)
 
-# readaline: readaline.o
-# 	$(CC) $(LDFLAGS) -o readaline readaline.o $(IFLAGS)
-
-# readaline.o
-
+#
 # Other Shortcuts worth nothing
 # $@ takes the name of the build rule and inserts it into the command
 # $^ inserts the relocatable object file names into the command
