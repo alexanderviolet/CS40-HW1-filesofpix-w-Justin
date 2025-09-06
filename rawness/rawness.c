@@ -13,8 +13,11 @@ int main(int argc, char *argv[])
 {
         tryOpeningFile(argc, argv);
 
-        extern T Pnmrdr_new(FILE * fp);
-        extern Pnmrdr_mapdata Pnmrdr_data(T rdr);
+        FILE *fptr = fopen(argv[1], "rb");
+
+        T rdr = Pnmrdr_new(fptr);
+
+        fclose(fptr);
 
         return 0;
 }
