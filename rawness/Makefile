@@ -19,7 +19,7 @@ EXECUTABLES = rawness
 #  files it really uses.
 #
 # Add your own .h files to the right side of the assingment below.
-INCLUDES = 
+INCLUDES = rawness.h
 
 # Do all C compies with gcc (at home you could try clang)
 CC = gcc
