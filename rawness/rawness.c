@@ -16,6 +16,22 @@ int main(int argc, char *argv[])
         FILE *fptr = fopen(argv[1], "rb");
 
         T rdr = Pnmrdr_new(fptr);
+        Pnmrdr_mapdata data = Pnmrdr_data(rdr);
+        printf("type: %d\n", data.type);
+        printf("width: %u\n", data.width);
+        printf("height: %u\n", data.height);
+        printf("denominator: %u\n", data.denominator);
+
+        /* Try to read and print first char */
+        int currASCII;
+        /* while ((currASCII = Pnmrdr_get(rdr)) != EOF)
+                printf("What does this mean? --> %u\n", currASCII); */
+        currASCII = Pnmrdr_get(rdr);
+        while (0)
+        {
+                printf("What does this mean? --> %u\n", currASCII);
+                currASCII = Pnmrdr_get(rdr);
+        }
 
         fclose(fptr);
 

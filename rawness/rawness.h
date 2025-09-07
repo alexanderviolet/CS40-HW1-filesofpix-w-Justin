@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pnmrdr.h> /* This is already doing the extern stuff */
+#include <setjmp.h>
 #define T Pnmrdr_T
 
 void tryOpeningFile(int argc, char *argv[]);
