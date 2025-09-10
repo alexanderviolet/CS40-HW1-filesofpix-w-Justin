@@ -32,18 +32,15 @@
  ************************/
 size_t readaline(FILE *inputfd, char **datapp) {
         // char c;
-        char *datapp = malloc(50);
+        *datapp = malloc(50);
 
-        *datapp = fgetc(inputfd); // Broken code: causing errors but time for bed
-        int i = 0;
+        **datapp = fgetc(inputfd);
+        printf("**datapp: %c\n", **datapp);
 
-        while ((*datapp[i] = fgetc(inputfd)) != EOF && *datapp[i] != '\n') {
-                
-                printf("%c", *datapp[i]);
-                i++;
+        /* You're struggling to print because you are replacing every value with just datapp, you should be walking over the array*/
+        while ((**datapp = fgetc(inputfd)) != EOF && **datapp != '\n') {
+                printf("**datapp: %c\n", **datapp);
         }
-
-        free(cp);
 
         return 0;
 }

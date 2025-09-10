@@ -18,6 +18,13 @@ int main(int argc, char *argv[])
         printf("this is the number of bytes: %d\n", bytes);       
 
         fclose(dummyptr);
+        
+        printf("Trying to print in restoration:\n");
+        printf("*data: %c\n", *data);
+        
+        
+        free(data);
+        
         return 0;
 }
 
