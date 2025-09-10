@@ -31,10 +31,19 @@
  *              3. Memory allocation fails
  ************************/
 size_t readaline(FILE *inputfd, char **datapp) {
-        (void) inputfd;
-        (void) datapp;
+        // char c;
+        char *datapp = malloc(50);
 
-        printf("You are in readaline.c!\n");
+        *datapp = fgetc(inputfd); // Broken code: causing errors but time for bed
+        int i = 0;
+
+        while ((*datapp[i] = fgetc(inputfd)) != EOF && *datapp[i] != '\n') {
+                
+                printf("%c", *datapp[i]);
+                i++;
+        }
+
+        free(cp);
 
         return 0;
 }

@@ -9,24 +9,20 @@
 
 int main(int argc, char *argv[])
 {
-        (void) argc;
-        (void) argv;
+        FILE *dummyptr = testOpeningFile(argc, argv);
 
-        void *dummyptr = testOpeningFile(argc, argv);
-        (void) dummyptr;
+        char *data;
 
-        int bytes = readaline(NULL, NULL);
+        int bytes = readaline(dummyptr, &data);
 
         printf("this is the number of bytes: %d\n", bytes);       
 
+        fclose(dummyptr);
         return 0;
 }
 
 FILE *testOpeningFile(int argc, char *argv[]) 
 {
-        (void) argv;
-        char c;
-
         /* Ensure we have a provided file */
         if (argc < 2) {
                 fprintf(stderr, "restoration requries an image!\n");
@@ -34,7 +30,6 @@ FILE *testOpeningFile(int argc, char *argv[])
                 exit(EXIT_FAILURE);
         }
 
-        printf("This should not print!\n");
         FILE *fptr = fopen(argv[1], "r");
 
         /* Ensure file is actually open */
@@ -44,10 +39,5 @@ FILE *testOpeningFile(int argc, char *argv[])
                 exit(EXIT_FAILURE);
         }
 
-        c = fgetc(fptr);
-        printf("The first character of this file is: %c\n", c);
-
-        fclose(fptr);
-
-        return NULL;
+        return fptr;
 }
