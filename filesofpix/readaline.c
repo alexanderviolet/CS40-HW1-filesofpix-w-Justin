@@ -12,8 +12,7 @@
 
 /********** readaline ********
  *
- * Return true if all scores are under a given limit and return number of
- * scores under the limit via reference parameter
+ * TODO: copy from spec
  *
  * Parameters:
  *      FILE *inputfd:  pointer to corrupted file from restoration
@@ -31,16 +30,30 @@
  *              3. Memory allocation fails
  ************************/
 size_t readaline(FILE *inputfd, char **datapp) {
-        // char c;
-        *datapp = malloc(50);
-
-        **datapp = fgetc(inputfd);
-        printf("**datapp: %c\n", **datapp);
-
-        /* You're struggling to print because you are replacing every value with just datapp, you should be walking over the array*/
-        while ((**datapp = fgetc(inputfd)) != EOF && **datapp != '\n') {
-                printf("**datapp: %c\n", **datapp);
+        if (inputfd == NULL || *datapp == NULL) {
+                fprintf(stderr, "TODO: terminate with a checked runtime error");
+                fprintf(stderr, "Supplied arguments in readaline are NULL\n");
+                exit(EXIT_FAILURE);
         }
 
-        return 0;
+        *datapp = malloc(1000);
+
+        if(*datapp == NULL) {
+                fprintf(stderr, "TODO: terminate with a checked runtime error");
+                fprintf(stderr, " for \"3. Memory allocation fails\"\n");
+                fclose(inputfd);
+                exit(EXIT_FAILURE);
+        }
+
+        int i = 0;
+        **datapp = fgetc(inputfd);
+        while(*(*datapp + i) != '\n' && *(*datapp + i) != EOF) {
+                i++;
+                *(*datapp + i) = fgetc(inputfd);
+        }
+        
+        /* Note: we are adding a null character to the end for printing! */
+        *(*datapp + i) = '\0';
+
+        return i;
 }
