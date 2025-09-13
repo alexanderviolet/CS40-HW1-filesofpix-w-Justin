@@ -24,8 +24,20 @@ int main(int argc, char *argv[])
 {
         FILE *fp = openFile(argc, argv);
 
-        const char *corruption_seq = findCorruptionSequence(fp);
+        Seq_T file_contents = Seq_new(1000);
+        Seq_T *contents_p = &file_contents;
+        const char *corruption_seq = findCorruptionSequence(fp, &contents_p);
         printf("IN MAIN: corruption sequence is %s\n", corruption_seq);
+
+        printf("asdfIN MAIN: trying to print first two indices of sequence:");
+        char *index_0 = Seq_get(file_contents, 0);
+        char *index_1 = Seq_get(file_contents, 1);
+        printf("IN MAIN: index 0: %s", index_0);
+        printf("IN MAIN: index 1: %s", index_1);
+
+        Seq_free(&file_contents);
+
+        /* Write uncorrupted data now */
 
         fclose(fp);
         
@@ -84,7 +96,7 @@ FILE *openFile(int argc, char *argv[])
  * Notes:
  *      
  ************************/
-const char *findCorruptionSequence(FILE *fp) 
+const char *findCorruptionSequence(FILE *fp, Seq_T **sequence) 
 {
         /* Create data pointer to hold readaline string */
         /*
@@ -124,22 +136,30 @@ const char *findCorruptionSequence(FILE *fp)
                         printf("current data string once match found: %s\n", data);
                 }
 
+                /* TODO: Must put into sequence here */
+                Seq_put(**sequence, 0, (void *) data);
+                
+
                 /* reset for next iteration since previous data in table */
                 free(data);
                 bytes = readaline(fp, &data);
         }
-
-        printf("Corruption String: %s\n", temp_for_atom);
         
         unsigned corruption_l = string_length(temp_for_atom);
         const char *corruption_string = Atom_new(temp_for_atom, corruption_l);
-        printf("Corruption String as Atom: %s\n", corruption_string);
         /* Maybe put this elsewhere */
         free(temp_for_atom);
         free(data);
+
+        /* 
+         * TODO: before we free table, you must write to stdout the current 
+         * duplicate emplaced in table 
+         */
+        void *second_line = Table_get(table, corruption_string);
+        Seq_put(**sequence, 1, second_line);
         Table_free(&table);
 
-        return(corruption_string); 
+        return corruption_string; 
 }
 
 /********** NAME ********
@@ -161,7 +181,7 @@ char *putAtomIntoTable(char *nondigit_string, char *data, Table_T **tablepp)
         unsigned nondigit_len = string_length(nondigit_string);
         const char *nondigit_atom = Atom_new(nondigit_string, nondigit_len);
 
-        /* convert data to void poitners to apss to Table_put arguments */
+        /* convert data to void poitners to pass to Table_put arguments */
         const void *nondig_vp = nondigit_atom;
         void *data_vp = data;
 
@@ -177,7 +197,8 @@ char *putAtomIntoTable(char *nondigit_string, char *data, Table_T **tablepp)
         /* 
          * Recycle memory of nondigit character array because the atom is saved
          * inside the table by this point. We haven't found our duplicate yet,
-         * so let findCorruptionSequence know we have to try again by returning NULL
+         * so let findCorruptionSequence know we have to try again by returning 
+         * NULL
          */
         free(nondigit_string);
         return NULL;
@@ -199,6 +220,7 @@ char *putAtomIntoTable(char *nondigit_string, char *data, Table_T **tablepp)
  * Notes:
  *      nondigit string will not contain a newline
  *      nondigit string will always end with '\0'
+ *      nondigit string must be freed elsewhere
  ************************/
 char *filterDigits(int bytes, char *data)
 {

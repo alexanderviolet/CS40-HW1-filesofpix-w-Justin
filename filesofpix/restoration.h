@@ -14,10 +14,11 @@
 #include "except.h"
 #include "atom.h"
 #include "table.h"
+#include "seq.h"
 
 char *allocate(unsigned n); 
 FILE *openFile(int argc, char *argv[]);
-const char *findCorruptionSequence(FILE *fp);
+const char *findCorruptionSequence(FILE *fp, Seq_T **sequence);
 char *putAtomIntoTable(char *nondigit_string, char *data, Table_T **tablepp);
 char *filterDigits(int bytes, char *data);
 unsigned string_length(char *string);
