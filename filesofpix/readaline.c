@@ -45,6 +45,8 @@ size_t readaline(FILE *inputfd, char **datapp) {
                 exit(EXIT_FAILURE);
         }
 
+        /* TODO: add a check to see if we're going over 1000 characters. */
+
         int i = 0;
         **datapp = fgetc(inputfd);
         while(*(*datapp + i) != '\n' && *(*datapp + i) != EOF) {
