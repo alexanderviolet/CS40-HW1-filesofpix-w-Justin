@@ -110,20 +110,40 @@ void atomsAndTables(FILE *fp)
 void putAtomIntoTable(int bytes, char *data, Table_T **tablepp) 
 {
         const char *atom = Atom_new(data, bytes);
-        printf("key: \t%s\n", atom);
 
+        char *nondigit_string = malloc(bytes + 1);
+
+        if (nondigit_string == NULL) {
+                fprintf(stderr, "malloc failed in putAtomIntoTable\n");
+                fprintf(stderr, "TODO: make this more modular\n");
+                exit(EXIT_FAILURE);
+        }
+
+        int nondigit_slot = 0;
         for (int i = 0; i < bytes; i++) {
-                printf("atom[%d]: %c ", i, atom[i]);
+                // printf("atom[%d]: %c ", i, atom[i]);
                 if(atom[i] < '1' || atom[i] > '9') {
-                        printf("\n");
+                        // printf("\n");
+                        nondigit_string[nondigit_slot] = atom[i];
+                        nondigit_slot++;
                 } else {
-                        printf("<-- DO NOT INCLUDE\n");
+                        // printf("<-- DO NOT INCLUDE\n");
                 }
         }
 
-        printf("\n");
-        Table_put(**tablepp, (void *) atom, (void *) data);
+        nondigit_string[nondigit_slot] = '\0';
 
-        printf("value: \t%s\n", (char *)Table_get(**tablepp, (void *) atom));
+        const char *nondigit_atom = Atom_new(nondigit_string, nondigit_slot);
+        printf("key: \t%s\n", nondigit_atom);
+
+        free(nondigit_string);
+
+        if (Table_put(**tablepp, (void *) nondigit_atom, (void *) atom) == NULL) {
+                printf("\t\tNote: we put something new in the table\n");
+        } else {
+                printf("\t\tNote: We have found a duplicate in the table\n");
+        }
+
+        printf("value: \t%s\n", (char *)Table_get(**tablepp, (void *) nondigit_atom));
         
 }
