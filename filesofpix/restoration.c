@@ -46,14 +46,18 @@ int main(int argc, char *argv[])
         printf("first index of sequence: %s\n", (char *) Seq_get(file_contents, 0));
         printf("second index of sequence: %s\n", (char *) Seq_get(file_contents, 1));
 
-        /* Question: why do I do this mumbo jumbo? */
+        writeRestoredFile((char *) Seq_get(file_contents, 0));
+        
+        /* TODO: remember Tamir's tip and we want to make sure everything are atoms */
         char initialized = 'x';
         char *data = &initialized;
 
         int bytes = readaline(fp, &data);
         const char *file_line = Atom_new(data, bytes);
 
-        printf("Next line: %s\n", file_line);
+        printf("Current data: %s\n", data);
+        printf("Next line as atom: %s\n", file_line);
+
 
         free(data);
 
@@ -78,8 +82,7 @@ int main(int argc, char *argv[])
  * Expects:
  *      argc and argv to be properly defined, other error checking occurs here
  * 
- * Notes:
- *      TODO: EDIT THIS SHIT 
+ * Notes: 
  *      Error checking file is open will happen in readaline as according to 
  *      the spec that should be the one throwing a checked runtime error. 
  ************************/
@@ -105,8 +108,6 @@ FILE *openFile(int argc, char *argv[])
  *      None
  * Expects:
  *      argc to be properly defined
- * Notes:
- *      None
  ************************/
 void checkArgCount(int argc)
 {
@@ -121,13 +122,11 @@ void checkArgCount(int argc)
  * Checks that the file pointer exists. If it is invalid, raises a CRE.
  *
  * Parameters:
- *      FILE *fptr:     copy of the file pointer to file (TODO: verify this is correct)
+ *      FILE *fptr:     copy of the file pointer to file
  * Return: 
  *      None
  * Expects:
  *      argc to be properly defined
- * Notes:
- *      None
  ************************/
 void verifyFileOpened(FILE *fptr)
 {
@@ -138,7 +137,7 @@ void verifyFileOpened(FILE *fptr)
 
 /********** findInfusion ********
 *
-* initialize hanson data structures utilized throughout the program
+* Initialize hanson data structures utilized throughout the program
 *
 * Parameters:
 *      FILE pointer fp to corrupted data
@@ -162,28 +161,9 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
          */
         char initialized = 'x';
         char *data = &initialized;
-        // int bytes = readaline(fp, &data);
-        int bytes = -1;
 
-        char *temp = NULL;
-        char *temp_for_atom;
+        char *temp_for_atom = findDuplicate(data, fp, &table, &seq);
 
-        /* Loop through the file until we find a duplicate */
-        while (bytes != 0 && temp == NULL) {
-                /* reset for next iteration since previous data in table */
-                bytes = readaline(fp, &data);
-
-                /* nondigit_string: key for table */
-                char *nondigit_string = filterDigits(bytes, data);
-                temp = putAtomIntoTable(nondigit_string, data, &table, &seq);
-                
-                /* Getting around the const issue to actually as atom */
-                if (temp != NULL) {
-                        temp_for_atom = temp;
-                }
-
-        }
-        
         unsigned infusion_l = string_length(temp_for_atom);
         const char *infusion_string = Atom_new(temp_for_atom, infusion_l);
         
@@ -195,10 +175,45 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
 
         Seq_addhi(*seq, second_line);
 
-        // free(data); /* TODO: YOU ARE FREEING DATA HERE REMEMBER FOR WHEN YOU MUST WRITE NEW FILE INFO TO SEQUENCE!!!!! move somewhere else later */
-
         return infusion_string; 
 }
+
+/******** TODO: findDuplicate ********
+*
+* Initialize hanson data structures utilized throughout the program
+*
+* Parameters:
+*      FILE pointer fp to corrupted data
+* Return:
+*      None so far
+* Expects
+*      fp to be open and able to read
+*      fp is formatted according to the spec
+* Notes:
+*
+************************/
+char *findDuplicate(char *data, FILE *fp, Table_T **table, Seq_T **seq)
+{
+        char *temp_for_atom = NULL;
+        int bytes = -1;
+        while (bytes != 0 && temp_for_atom == NULL) {
+                /* reset for next iteration since previous data in table */
+                bytes = readaline(fp, &data);
+
+                /* nondigit_string: key for table */
+                char *filtered = filterDigits(bytes, data);
+                temp_for_atom = putAtomIntoTable(filtered, data, table, seq);
+                
+                /* Getting around the const issue to actually as atom */
+                if (temp_for_atom != NULL) {
+                        return temp_for_atom;
+                }
+        }
+
+        /* Duplicate not found return NULL */
+        return NULL;
+}
+
 
 /********** NAME ********
  *
@@ -319,7 +334,7 @@ void checkMalloc(char *nondigit_string)
  *      pointer (pass by value) to string
  * Return: 
  *      unsigned integer length of string
- * Expects
+ * Expects:
  *      argument is not NULL
  *      string is properly formatted and ends with '\0'
  ************************/
@@ -373,7 +388,6 @@ void freeAllData(Table_T *table, Seq_T *seq, FILE *fp)
 
         /* Free memory in sequence */
         int length = Seq_length(*seq);
-        printf("length: %u\n", length);
         for (int i = 0; i < length; i++)
         {
                 free(Seq_get(*seq, i));
@@ -385,4 +399,33 @@ void freeAllData(Table_T *table, Seq_T *seq, FILE *fp)
 
         /* Close file */
         fclose(fp);
+}
+
+/********** TODO ********
+ *
+ * DESCRIPTION
+ *
+ * Parameters:
+ *      
+ * Return: 
+ *      
+ * Expects
+ *      
+ * Notes:
+ *      
+ ************************/
+void writeRestoredFile(char *corrupted_string)
+{
+        printf("In writeRestoredFile: %s\n", corrupted_string);
+        /* TODO: in future, you will be passing an atom, so be sure to record the length necessary for this for loop */
+        int length = string_length(corrupted_string);
+        
+        for (int i = 0; i < length; i++) {
+                if (corrupted_string[i] >= '1' && corrupted_string[i] <= '9') {
+                        printf("%c ", corrupted_string[i]);
+                }
+        }
+        
+        printf("\n");
+        
 }

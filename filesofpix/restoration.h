@@ -22,11 +22,12 @@ FILE *openFile(int argc, char *argv[]);
 void checkArgCount(int argc);
 void verifyFileOpened(FILE *fptr);
 const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table);
+char *findDuplicate(char *data, FILE *fp, Table_T **table, Seq_T **seq);
 char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s);
 char *filterDigits(int bytes, char *data);
 void checkMalloc(char *nondigit_string);
 unsigned string_length(char *string);
-void writeUncorruptedData(const char *seq, FILE *fp, char *data);
+void writeRestoredFile(char *corrupted_string);
 void freeAllData(Table_T *table, Seq_T *seq, FILE *fp);
 static void vfree(const void *key, void **value, void *cl);
 
