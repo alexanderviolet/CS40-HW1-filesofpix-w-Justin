@@ -43,19 +43,19 @@ Except_T Readaline_Memory_Allocation_Error;
  *              3. Memory allocation fails
  ************************/
 size_t readaline(FILE *inputfd, char **datapp) {
+        /* Check valid arguments, raise CRE if invalid */
         if (inputfd == NULL || *datapp == NULL) {
                 RAISE(Invalid_Argument);
         }
 
+        /* Allocate memory and raise CRE if unsuccessful */
         *datapp = malloc(1000);
-
         if(*datapp == NULL) {
                 RAISE(Readaline_Memory_Allocation_Error);
         }
 
         /* TODO: add a check to see if we're going over 1000 characters. */
         
-
         int i = 0;
         **datapp = fgetc(inputfd);
         while(*(*datapp + i) != '\n' && *(*datapp + i) != EOF) {

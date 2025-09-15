@@ -21,7 +21,7 @@ char *allocate(unsigned n);
 FILE *openFile(int argc, char *argv[]);
 void checkArgCount(int argc);
 void verifyFileOpened(FILE *fptr);
-const char *findCorruptionStr(FILE *fp, Seq_T *seq, Table_T *table);
+const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table);
 char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s);
 char *filterDigits(int bytes, char *data);
 void checkMalloc(char *nondigit_string);

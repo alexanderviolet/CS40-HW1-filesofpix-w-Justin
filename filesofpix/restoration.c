@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
         Table_T table = Table_new(1000, NULL, NULL);
         Seq_T file_contents = Seq_new(1000);
         
-        const char *corruption_str = findCorruptionStr(fp, &file_contents, &table); /* TODO: 80 chars */
-        printf("IN MAIN: corruption string is %s\n", corruption_str);
+        const char *infusion_str = findInfusion(fp, &file_contents, &table); /* TODO: 80 chars */
+        printf("IN MAIN: infusion string is %s\n", infusion_str);
 
         printf("first index of sequence: %s\n", (char *) Seq_get(file_contents, 0));
         printf("second index of sequence: %s\n", (char *) Seq_get(file_contents, 1));
@@ -136,7 +136,7 @@ void verifyFileOpened(FILE *fptr)
         }
 }
 
-/********** findCorruptionStr ********
+/********** findInfusion ********
 *
 * initialize hanson data structures utilized throughout the program
 *
@@ -150,7 +150,7 @@ void verifyFileOpened(FILE *fptr)
 * Notes:
 *
 ************************/
-const char *findCorruptionStr(FILE *fp, Seq_T *seq, Table_T *table)
+const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
 { 
         /* Create data pointer to hold readaline string */
         /*
@@ -184,20 +184,20 @@ const char *findCorruptionStr(FILE *fp, Seq_T *seq, Table_T *table)
 
         }
         
-        unsigned corruption_l = string_length(temp_for_atom);
-        const char *corruption_string = Atom_new(temp_for_atom, corruption_l);
+        unsigned infusion_l = string_length(temp_for_atom);
+        const char *infusion_string = Atom_new(temp_for_atom, infusion_l);
         
         free(temp_for_atom);
 
         /* pluck original file data from table to make freeing easier */
-        void *second_line = Table_get(*table, corruption_string);
-        Table_remove(*table, corruption_string);
+        void *second_line = Table_get(*table, infusion_string);
+        Table_remove(*table, infusion_string);
 
         Seq_addhi(*seq, second_line);
 
         // free(data); /* TODO: YOU ARE FREEING DATA HERE REMEMBER FOR WHEN YOU MUST WRITE NEW FILE INFO TO SEQUENCE!!!!! move somewhere else later */
 
-        return corruption_string; 
+        return infusion_string; 
 }
 
 /********** NAME ********
@@ -239,7 +239,7 @@ char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s)
         /* 
          * Recycle memory of nondigit character array because the atom is saved
          * inside the table by this point. We haven't found our duplicate yet,
-         * so let findCorruptionStr know we have to try again by returning 
+         * so let findInfusion know we have to try again by returning 
          * NULL
          */
         free(nondigit);
@@ -249,7 +249,7 @@ char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s)
 /********** filterDigits ********
  *
  * create and return a string on the heap that contains a line's nondigit 
- * corruption sequence of characters.
+ * infusion sequence of characters.
  *
  * Parameters:
  *      bytes: number of characters in original corrupted file line
