@@ -18,11 +18,15 @@
 
 char *allocate(unsigned n); 
 FILE *openFile(int argc, char *argv[]);
-const char *findCorruptionSequence(FILE *fp, Seq_T **sequence);
-char *putAtomIntoTable(char *nondigit_string, char *data, Table_T **tablepp);
+void checkArgCount(int argc);
+void verifyFileOpened(FILE *fptr);
+const char *findCorruptionStr(FILE *fp, Seq_T *seq, Table_T *table);
+char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s);
 char *filterDigits(int bytes, char *data);
 unsigned string_length(char *string);
 void writeUncorruptedData(const char *seq, FILE *fp, char *data);
+void freeAllData(Table_T *table, Seq_T *seq, FILE *fp);
+static void vfree(const void *key, void **value, void *cl);
 
 #endif
 
