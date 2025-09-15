@@ -1,14 +1,25 @@
 /*
  *      readaline.c
- *      Justin and Alex, September 9, 2025
+ *      Justin Paik (jpaik03), Alex Violet (aviole01)
+ *      September 15, 2025
  *      filesofpix
  * 
  *      TODO: Summary
  */
 
 #include "readaline.h"
+#include "except.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/*                      EXCEPTION(S)                     */
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+Except_T Invalid_Argument;
+Except_T Readaline_Input_File_Read_Error; // TODO: implement
+Except_T Readaline_Memory_Allocation_Error;
+/* TODO: find out why multiple definitions of exceptions among files won't compile */
 
 /********** readaline ********
  *
@@ -19,10 +30,12 @@
  *      char **datapp:  pass by reference pointer which will be set to the first
  *                      character of a line in the file
  *
- * Return: number of bytes in read line
+ * Return:
+ *      Number of bytes in read line
  *
- * Expects
+ * Expects:
  *      inputfd and datapp must not be NULL
+ * 
  * Notes:
  *      Will raise Checked Runtime Error if:
  *              1. Either or both of the supplied arguments is NULL
@@ -31,18 +44,13 @@
  ************************/
 size_t readaline(FILE *inputfd, char **datapp) {
         if (inputfd == NULL || *datapp == NULL) {
-                fprintf(stderr, "TODO: terminate with a checked runtime error");
-                fprintf(stderr, "Supplied arguments in readaline are NULL\n");
-                exit(EXIT_FAILURE);
+                RAISE(Invalid_Argument);
         }
 
         *datapp = malloc(1000);
 
         if(*datapp == NULL) {
-                fprintf(stderr, "TODO: terminate with a checked runtime error");
-                fprintf(stderr, " for \"3. Memory allocation fails\"\n");
-                fclose(inputfd);
-                exit(EXIT_FAILURE);
+                RAISE(Readaline_Memory_Allocation_Error);
         }
 
         /* TODO: add a check to see if we're going over 1000 characters. */

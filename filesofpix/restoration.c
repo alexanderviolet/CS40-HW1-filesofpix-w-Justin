@@ -1,6 +1,7 @@
 /*
  *      restoration.c
- *      Justin and Alex, September 9, 2025
+ *      Justin Paik (jpaik03), Alex Violet (aviole01)
+ *      September 15, 2025
  *      filesofpix
  * 
  *      TODO: Summary
@@ -25,8 +26,11 @@
 /*                      EXCEPTION(S)                     */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-Except_T Wrong_Arg_Count;
+Except_T Invalid_Arg_Count;
 Except_T File_Open_Error;
+Except_T Input_File_Read_Error; // TODO: implement
+Except_T Expected_Input_Not_Supplied; // TODO: implement
+Except_T Memory_Allocation_Error;
 
 int main(int argc, char *argv[])
 {
@@ -58,20 +62,24 @@ int main(int argc, char *argv[])
         return 0;
 }
 
-/********** openFile ********
+/******** openFile ********
  *
- * Try to open a file and ensure we have enough arguments to actually open it. 
+ * Try to open a file by checking the number of arguments and verifying it has
+ * opened. Returns a FILE pointer if successful, otherwise, terminates with a
+ * Checked Runtime Error (CRE).
  *
  * Parameters:
  *      int argc:       copy of the argument count back in main
  *      char *argv[]:   copy of the argument array to access filename
  *
  * Return: 
- *      FILE pointer to file (may or may not be actually sucessful)
+ *      FILE pointer to file (given file opens successfully)
  *
- * Expects
+ * Expects:
  *      argc and argv to be properly defined, other error checking occurs here
+ * 
  * Notes:
+ *      TODO: EDIT THIS SHIT 
  *      Error checking file is open will happen in readaline as according to 
  *      the spec that should be the one throwing a checked runtime error. 
  ************************/
@@ -87,14 +95,40 @@ FILE *openFile(int argc, char *argv[])
         return fptr;
 }
 
+/******** checkArgCount ********
+ *
+ * Checks the number of arguments. If it is invalid, raises a CRE.
+ *
+ * Parameters:
+ *      int argc:       copy of the argument count back in main
+ * Return: 
+ *      None
+ * Expects:
+ *      argc to be properly defined
+ * Notes:
+ *      None
+ ************************/
 void checkArgCount(int argc)
 {
         if (argc > 2)
         {
-                RAISE(Wrong_Arg_Count);
+                RAISE(Invalid_Arg_Count);
         }
 }
 
+/******** verifyFileOpened ********
+ *
+ * Checks that the file pointer exists. If it is invalid, raises a CRE.
+ *
+ * Parameters:
+ *      FILE *fptr:     copy of the file pointer to file (TODO: verify this is correct)
+ * Return: 
+ *      None
+ * Expects:
+ *      argc to be properly defined
+ * Notes:
+ *      None
+ ************************/
 void verifyFileOpened(FILE *fptr)
 {
         if (fptr == NULL) {
@@ -236,12 +270,7 @@ char *filterDigits(int bytes, char *data)
 
         /* create a copy string to temporarily store nondigit chars */
         char *nondigit_string = malloc(bytes + 1);
-
-        if (nondigit_string == NULL) {
-                fprintf(stderr, "malloc failed in putAtomIntoTable\n");
-                fprintf(stderr, "TODO: make this more modular\n");
-                exit(EXIT_FAILURE);
-        }
+        checkMalloc(nondigit_string);
 
         /* 
          * As to not skip indices in the temp string, nondigit_slot will only
@@ -259,6 +288,27 @@ char *filterDigits(int bytes, char *data)
         nondigit_string[nondigit_len] = '\0';
 
         return nondigit_string;
+}
+
+/******** checkMalloc ********
+ *
+ * Check for successful memory allocation. If memory cannot be allocated using
+ * malloc, raises a CRE.
+ *
+ * Parameters: TODO: correct this
+ *      char *nondigit_string:  copy of nondigit string
+ * Return: 
+ *      None
+ * Expects:
+ *      nondigit_string to be properly defined
+ * Notes:
+ *      None
+ ************************/
+void checkMalloc(char *nondigit_string)
+{
+        if (nondigit_string == NULL) {
+                RAISE(Memory_Allocation_Error);
+        }
 }
 
 /********** string_length ********

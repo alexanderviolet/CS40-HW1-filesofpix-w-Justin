@@ -1,9 +1,10 @@
 /*
  *      restoration.h
- *      Justin and Alex, September 9, 2025
+ *      Justin Paik (jpaik03), Alex Violet (aviole01)
+ *      September 15, 2025
  *      filesofpix
- * 
- *      included statements and function prototypes for restoration.c
+ *
+ *      Includes statements and function prototypes for restoration.c
  */
 #ifndef RESTORATION_H
 #define RESTORATION_H
@@ -23,6 +24,7 @@ void verifyFileOpened(FILE *fptr);
 const char *findCorruptionStr(FILE *fp, Seq_T *seq, Table_T *table);
 char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s);
 char *filterDigits(int bytes, char *data);
+void checkMalloc(char *nondigit_string);
 unsigned string_length(char *string);
 void writeUncorruptedData(const char *seq, FILE *fp, char *data);
 void freeAllData(Table_T *table, Seq_T *seq, FILE *fp);
