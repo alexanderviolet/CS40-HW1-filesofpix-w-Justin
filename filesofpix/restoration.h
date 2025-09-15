@@ -17,18 +17,18 @@
 #include "table.h"
 #include "seq.h"
 
-char *allocate(unsigned n); 
 FILE *openFile(int argc, char *argv[]);
 void checkArgCount(int argc);
 void verifyFileOpened(FILE *fptr);
 const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table);
 char *findDuplicate(char *data, FILE *fp, Table_T **table, Seq_T **seq);
-char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s);
 char *filterDigits(int bytes, char *data);
-void checkMalloc(char *nondigit_string);
-unsigned string_length(char *string);
+char *putAtomIntoTable(char *nondigit, char *data, Table_T **tablepp, Seq_T **s);
 void writeRestoredFile(char *corrupted_string);
 void freeAllData(Table_T *table, Seq_T *seq, FILE *fp);
+void checkMalloc(char *nondigit_string);
+unsigned isDigit(char c);
+unsigned string_length(char *string);
 static void vfree(const void *key, void **value, void *cl);
 
 #endif
