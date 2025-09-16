@@ -77,14 +77,9 @@ int main(int argc, char *argv[])
 FILE *openFile(int argc, char *argv[]) 
 {
         checkArgCount(argc);
-        FILE *fptr;
 
         /* Try to open argument */
-        if (argc == 2) {
-                fptr = fopen(argv[1], "r");
-        } else {
-                fptr = stdin;
-        }
+        FILE *fptr = fopen(argv[1], "r");
 
         verifyFileOpened(fptr);
 

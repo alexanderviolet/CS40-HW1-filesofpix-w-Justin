@@ -21,10 +21,6 @@ Except_T Readaline_Input_File_Read_Error; // TODO: implement
 Except_T Readaline_Memory_Allocation_Error;
 /* TODO: find out why multiple definitions of exceptions among files won't compile */
 
-
-/* Helper function prototypes */
-void reserveMore(int *vsize, char **datapp);
-
 /********** readaline ********
  *
  * TODO: copy from spec
@@ -60,17 +56,15 @@ size_t readaline(FILE *inputfd, char **datapp) {
                 RAISE(Readaline_Memory_Allocation_Error);
         }
 
-
+        /* TODO: add a check to see if we're going over 1000 characters. */
         int i = 0;
         **datapp = fgetc(inputfd);
         while(*(*datapp + i) != '\n' && *(*datapp + i) != EOF) {
                 i++;
-                /* If reached max size, then reserve more memory */
                 if (i == vsize) {
-                        reserveMore(&vsize, datapp);
+                        fprintf(stderr, "1000 char\n");
+                        RAISE(Readaline_Memory_Allocation_Error);
                 }
-
-                /* continue storing characters from file */
                 *(*datapp + i) = fgetc(inputfd);
         }
         
@@ -78,40 +72,4 @@ size_t readaline(FILE *inputfd, char **datapp) {
         *(*datapp + i) = '\0';
 
         return i;
-}
-
-/********** reserveMore ********
- *
- * reallocate more memory when we reach max buffer size
- *
- * Parameters: 
- *      pointer to vsize integer to update new size
- *      datapp pointer to reset to buffer array
- * Return: 
- *      none
- * Expects
- *      datapp is not NULL
- * Notes:
- *      This is pretty much exactly like ArrayList expansion function.
- ************************/
-void reserveMore(int *vsize, char **datapp) {        
-        /* Allocate more memory for larger input size */
-        char *buffer = malloc(*vsize * 2);
-        if (buffer == NULL) {
-                RAISE(Readaline_Memory_Allocation_Error);
-        }
-
-        /* Copy values into buffer array */
-        for (int i = 0; i < *vsize; i++) {
-                buffer[i] = *(*datapp + i);
-        }
-
-        /* Recycle memory of smaller array */
-        free(*datapp);
-
-        /* Update datapp's pointer value to the first address of buffer array */
-        *datapp = buffer;
-        
-        /* size needs to represent the current size of new array */
-        *vsize *= 2; 
 }

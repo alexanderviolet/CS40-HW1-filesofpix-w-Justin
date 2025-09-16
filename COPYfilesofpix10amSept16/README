@@ -1,0 +1,21 @@
+/*
+ *      README
+ *      Justin Paik (jpaik03), Alex Violet (aviole01)
+ *      September 15, 2025
+ *      filesofpix
+ *
+ *      Provides additional information about the implementation process by the
+ *      programmers.
+ */
+
+Help Received:
+- Geeks for Geeks with pretty much anything related to syntax or pointers
+- Existing Stack Overflow discussions for simple tasks in C
+- TAs 
+
+Implementation Notes
+- To our knowledge, everything should be correctly implemented. We failed tests
+like a file being too long and the Turing / Sail file for unknown reasons.
+
+Approximate Time Spend:
+- 30ish hours

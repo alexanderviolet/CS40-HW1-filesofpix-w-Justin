@@ -77,14 +77,9 @@ int main(int argc, char *argv[])
 FILE *openFile(int argc, char *argv[]) 
 {
         checkArgCount(argc);
-        FILE *fptr;
 
         /* Try to open argument */
-        if (argc == 2) {
-                fptr = fopen(argv[1], "r");
-        } else {
-                fptr = stdin;
-        }
+        FILE *fptr = fopen(argv[1], "r");
 
         verifyFileOpened(fptr);
 
@@ -166,7 +161,7 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
         unsigned infusion_l = string_length(temp_for_atom); /* TODO: eliminate string length*/
         const char *infusion_string = Atom_new(temp_for_atom, infusion_l);
         
-        /* Recycle memory allocated from findDuplicate we kick this off stack */
+        /* Recycle memory allocated from findDup we kick this off stack */
         free(temp_for_atom);
 
         /* pluck original file data from table to make freeing easier */
@@ -179,7 +174,7 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
         return infusion_string; 
 }
 
-/******** findDuplicate ********
+/******** findDup ********
 *
 * Find the duplicate infusion sequence to recognize original image lines.
 *
@@ -197,30 +192,32 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
 * Notes:
 *
 ************************/
-char *findDup(char *data, FILE *fp, Table_T **t, Seq_T **s)
+const char *findDup(char *data, FILE *fp, Table_T **t, Seq_T **s)
 {
         /* Declare storage variables */
-        char *temp_for_atom = NULL;
-        char *filtered = NULL;
+        const char *infusion = NULL;
+        const char *filtered = NULL;
+        const char *original = NULL;
         int bytes = -1;
 
         /* Loop through minimal amount of file until found duplicate */
         while (bytes != 0 && temp_for_atom == NULL) {
                 /* reset for next iteration since previous data in table */
                 bytes = readaline(fp, &data);
+                original = Atom_new(data, bytes);
 
                 /* nondigit_string: key for table */
                 filtered = filterDigits(bytes, data);
-                temp_for_atom = atomIntoTable(filtered, data, t, s);
+                infusion = SearchTable(filtered, original, t, s);
                 
                 /* Getting around the const issue to actually as atom */
-                if (temp_for_atom != NULL) {
-                        return temp_for_atom;
+                if (infusion != NULL) {
+                        return infusion;
                 }
         }
 
         /* recycle memory for storage variable if unsuccessful */
-        free(filtered);
+        // free(filtered); /* TODO: atm cannot free atom
 
         /* Duplicate not found return NULL */
         return NULL;
@@ -244,7 +241,7 @@ char *findDup(char *data, FILE *fp, Table_T **t, Seq_T **s)
  *      nondigit string will always end with '\0'
  *      nondigit string must be freed elsewhere
  ************************/
-char *filterDigits(int bytes, char *data)
+const char *filterDigits(int bytes, char *data)
 {
         int nondigit_len = 0;
 
@@ -265,12 +262,13 @@ char *filterDigits(int bytes, char *data)
                 }
         }
 
+        
         nondigit_string[nondigit_len] = '\0'; /* TODO: maybe eliminate? */
 
-        return nondigit_string;
+        return Atom_new(nondigit_string, nondigit_len);
 }
 
-/******** atomIntoTable ********
+/******** SearchTable ********
  *
  * Populates the table with unique atoms that represent injection sequences.
  * When an atom repeats, Table_put() returns a char pointer to the currently
@@ -289,21 +287,21 @@ char *filterDigits(int bytes, char *data)
  * Notes:
  *      Returns NULL for unexpected behavior of no duplicates.
  ************************/
-char *atomIntoTable(char *nd, char *data, Table_T **t, Seq_T **s)
+const char *SearchTable(const char *nd, const char *og, Table_T **t, Seq_T **s)
 {
-        /* create atom as key for table */
-        unsigned nondigit_len = string_length(nd);
-        const char *nondigit_atom = Atom_new(nd, nondigit_len);
+        // /* create atom as key for table */
+        // unsigned nondigit_len = string_length(nd);
+        // const char *nondigit_atom = Atom_new(nd, nondigit_len);
 
         /* convert data to void pointers to pass to Table_put arguments */
-        const void *nondig_vp = nondigit_atom;
+        // const void *nondig_vp = nondigit_atom;
 
         /*
          * Emplace in table and check for duplicates. Table_put returns NULL if
          * a new element is successfully emplaced. However, it will return the
          * old value if a duplicate key is emplaced. Return the key for future. 
          */
-        char *duplicate = Table_put(**t, nondig_vp, (void *)data);
+        const char *duplicate = Table_put(**t, (void *)nd, (void *)og);
 
         if (duplicate != NULL) {
                 /* put into sequence*/
