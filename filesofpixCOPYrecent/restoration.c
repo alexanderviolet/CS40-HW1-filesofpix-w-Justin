@@ -148,17 +148,17 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
 { 
         /* Create data pointer to hold readaline string */
         char *data = NULL;
-        // int infusion_l = -1;
+        int infusion_l = -1;
 
         /* Store character info in temp pointer */
-        char *temp_for_atom = findDup(data, fp, &table, &seq);
+        char *temp_for_atom = findDup(data, fp, &table, &seq, &infusion_l);
         if (temp_for_atom == NULL) {
                 fprintf(stderr, "for our own testing: no duplicate found\n");
                 RAISE(No_Duplicate_Infusion_Found);
         }
 
         /* Make this an atom */
-        unsigned infusion_l = string_length(temp_for_atom); /* TODO: eliminate string length*/
+        // unsigned infusion_l = string_length(temp_for_atom); /* TODO: eliminate string length*/
         const char *infusion_string = Atom_new(temp_for_atom, infusion_l);
         
         /* Recycle memory allocated from findDuplicate we kick this off stack */
@@ -192,21 +192,20 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
 * Notes:
 *
 ************************/
-char *findDup(char *data, FILE *fp, Table_T **t, Seq_T **s)
+char *findDup(char *data, FILE *fp, Table_T **t, Seq_T **s, int *infusion_l)
 {
         /* Declare storage variables */
         char *temp_for_atom = NULL;
         char *filtered = NULL;
-        int bytes = -1;
 
         /* Loop through minimal amount of file until found duplicate */
-        while (bytes != 0 && temp_for_atom == NULL) {
+        while (*infusion_l != 0 && temp_for_atom == NULL) {
                 /* reset for next iteration since previous data in table */
-                bytes = readaline(fp, &data);
+                *infusion_l = readaline(fp, &data);
 
                 /* nondigit_string: key for table */
-                filtered = filterDigits(bytes, data);
-                temp_for_atom = atomIntoTable(filtered, data, t, s);
+                filtered = filterDigits(infusion_l, data);
+                temp_for_atom = atomIntoTable(filtered, data, table, seq, *infusion_l); /* TODO: 80 chars */
                 
                 /* Getting around the const issue to actually as atom */
                 if (temp_for_atom != NULL) {
@@ -215,7 +214,7 @@ char *findDup(char *data, FILE *fp, Table_T **t, Seq_T **s)
         }
 
         /* recycle memory for storage variable if unsuccessful */
-        free(filtered);
+        free(filtered); 
 
         /* Duplicate not found return NULL */
         return NULL;
@@ -239,12 +238,12 @@ char *findDup(char *data, FILE *fp, Table_T **t, Seq_T **s)
  *      nondigit string will always end with '\0'
  *      nondigit string must be freed elsewhere
  ************************/
-char *filterDigits(int bytes, char *data)
+char *filterDigits(int *bytes, char *data)
 {
         int nondigit_len = 0;
 
         /* create a copy string to temporarily store nondigit chars */
-        char *nondigit_string = malloc(bytes + 1);
+        char *nondigit_string = malloc(*bytes + 1);
         checkMalloc(nondigit_string);
 
         /* 
@@ -260,6 +259,7 @@ char *filterDigits(int bytes, char *data)
                 }
         }
 
+        *bytes = nondigit_len;
         nondigit_string[nondigit_len] = '\0'; /* TODO: maybe eliminate? */
 
         return nondigit_string;
@@ -273,7 +273,7 @@ char *filterDigits(int bytes, char *data)
  * in a Hanson Sequence.
  *
  * Parameters:
- *      char pointer nd to nondigit injection sequence
+ *      char pointer nondigit to an injection sequence
         char pointer data to corrupted data
         Table_T **t: pointer back to original table in main
         Seq_T **s: pointer back to original sequence in main
@@ -284,11 +284,11 @@ char *filterDigits(int bytes, char *data)
  * Notes:
  *      Returns NULL for unexpected behavior of no duplicates.
  ************************/
-char *atomIntoTable(char *nd, char *data, Table_T **t, Seq_T **s)
+char *atomIntoTable(char *nd, char *data, Table_T **t, Seq_T **s, int nd_len)
 {
         /* create atom as key for table */
-        unsigned nondigit_len = string_length(nd);
-        const char *nondigit_atom = Atom_new(nd, nondigit_len);
+        // unsigned nondigit_len = string_length(nd);
+        const char *nondigit_atom = Atom_new(nd, nd_len);
 
         /* convert data to void pointers to pass to Table_put arguments */
         const void *nondig_vp = nondigit_atom;
@@ -337,9 +337,9 @@ void storeOriginalRows(Seq_T *seq, FILE *fp, const char *infusion) {
 
         int bytes = readaline(fp, &data);
         while(bytes != 0 && *data != EOF) {
-                nondigits = filterDigits(bytes, data);
-                int nondigit_length = string_length(nondigits);
-                const char *nondigit_atom = Atom_new(nondigits, nondigit_length); /* TODO 80 chars*/
+                nondigits = filterDigits(&bytes, data);
+                // int nondigit_length = string_length(bytes);
+                const char *nondigit_atom = Atom_new(nondigits, bytes);
 
                 if (infusion == nondigit_atom) {
                         Seq_addhi(*seq, data);
@@ -389,6 +389,7 @@ void writeRestoredFile(Seq_T *seq)
         } 
         printf("%d %d\n%d\n", width, Seq_length(*seq), MAX_VAL);
 
+        // printf("height of PGM: %d\n", Seq_length(*seq));
         for (int i = 0; i < Seq_length(*seq); i++) {
                 printLineInASCII((char *) Seq_get(*seq, i));
         }
