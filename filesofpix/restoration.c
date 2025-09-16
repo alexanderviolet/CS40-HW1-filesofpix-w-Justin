@@ -52,6 +52,8 @@ int main(int argc, char *argv[])
 
         freeAllData(&table, &file_contents, fp);
         
+        exit(EXIT_SUCCESS);
+
         return 0;
 }
 
@@ -153,7 +155,6 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
 { 
         /* Create data pointer to hold readaline string */
         char *data = NULL;
-        // int infusion_l = -1;
 
         /* Store character info in temp pointer */
         char *temp_for_atom = findDup(data, fp, &table, &seq);
@@ -163,7 +164,7 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
         }
 
         /* Make this an atom */
-        unsigned infusion_l = string_length(temp_for_atom); /* TODO: eliminate string length*/
+        unsigned infusion_l = string_length(temp_for_atom);
         const char *infusion_string = Atom_new(temp_for_atom, infusion_l);
         
         /* Recycle memory allocated from findDuplicate we kick this off stack */
@@ -179,7 +180,7 @@ const char *findInfusion(FILE *fp, Seq_T *seq, Table_T *table)
         return infusion_string; 
 }
 
-/******** findDuplicate ********
+/******** findDup ********
 *
 * Find the duplicate infusion sequence to recognize original image lines.
 *
@@ -265,7 +266,7 @@ char *filterDigits(int bytes, char *data)
                 }
         }
 
-        nondigit_string[nondigit_len] = '\0'; /* TODO: maybe eliminate? */
+        nondigit_string[nondigit_len] = '\0';
 
         return nondigit_string;
 }
@@ -332,23 +333,30 @@ char *atomIntoTable(char *nd, char *data, Table_T **t, Seq_T **s)
  * Return: 
  *      None
  * Expects:
- *      
+ *      sequence and file pointer should be properly initalized
+ *      inufsion sequence is found for comparison
  * Notes:
  *      
  ************************/
 void storeOriginalRows(Seq_T *seq, FILE *fp, const char *infusion) {
+        
+        /* Set up pointers to storage */
         char *data = NULL;
         char *nondigits = NULL;
-
         int bytes = readaline(fp, &data);
+
+        /* Loop through file pointer an filter original rows */
         while(bytes != 0 && *data != EOF) {
+                /* Set up atom for comparison */
                 nondigits = filterDigits(bytes, data);
-                int nondigit_length = string_length(nondigits);
-                const char *nondigit_atom = Atom_new(nondigits, nondigit_length); /* TODO 80 chars*/
+                int nondigit_l = string_length(nondigits);
+                const char *nondigit_atom = Atom_new(nondigits, nondigit_l);
 
                 if (infusion == nondigit_atom) {
+                        /* if match, safely emplace in sequence */
                         Seq_addhi(*seq, data);
                 } else {
+                        /* otherwise recycle memory and move on*/
                         free(data);
                 }
 
@@ -368,32 +376,35 @@ void storeOriginalRows(Seq_T *seq, FILE *fp, const char *infusion) {
  * Return:
  *      None
  * Expects:
- *      
+ *      all original lines to be emplaced
  * Notes:
  *      Outputs restored file header and raster in P5 format.
  ************************/
 void writeRestoredFile(Seq_T *seq)
 {
-        /* TODO: in future, you will be passing an atom, so be sure to record the length necessary for this for loop */
+        /* Start actually writing restored PGM */
         printf("P5\n");
 
+        /* Initialize storage variables */
         char *first_line = (char *) Seq_get(*seq, 0);
-
         int length = string_length(first_line);
-        int bool_printed = 1; /* TODO: 0 is false, 1 is true */
+        int number_found = 1;
         int width = 0;
 
+        /* Determine the width of the first line of sequence*/
         for (int i = 0; i < length + 1; i++)
         {
                 if (isDigit(first_line[i])) {
-                        bool_printed = 0;
-                } else if (bool_printed == 0) {
+                        number_found = 0;
+                } else if (number_found == 0) {
                         width++;
-                        bool_printed = 1;
+                        number_found = 1;
                 }
-        } 
+        }
+        /* Print header */ 
         printf("%d %d\n%d\n", width, Seq_length(*seq), MAX_VAL);
 
+        /* Print contents in sequence */
         for (int i = 0; i < Seq_length(*seq); i++) {
                 printLineInASCII((char *) Seq_get(*seq, i));
         }
@@ -415,11 +426,13 @@ void writeRestoredFile(Seq_T *seq)
  ************************/
 void printLineInASCII(char *line)
 {
+        /* Initialize storage variables */
         int length = string_length(line);
         int number = 0;
-        int bool_printed = 1; /* TODO: 0 is false, 1 is true */
-
+        int bool_printed = 1;
         int width = 0;
+
+        /* Loop through string characters and print number as a character */
         for (int i = 0; i < length + 1; i++)
         {
                 if (isDigit(line[i])) {
@@ -524,7 +537,7 @@ unsigned isDigit(char c)
  *      string is properly formatted and ends with '\0'
  ************************/
 unsigned string_length(char *string) {
-        unsigned length = 0; /* TODO */
+        unsigned length = 0;
         
         while (*string++) {
                 length++;

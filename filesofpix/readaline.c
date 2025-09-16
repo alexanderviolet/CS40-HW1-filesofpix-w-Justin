@@ -4,7 +4,8 @@
  *      September 15, 2025
  *      filesofpix
  * 
- *      TODO: Summary
+ *      Process file line information and give restoration implemntation a 
+ *      pointer to data storage array and the number of bytes stored
  */
 
 #include "readaline.h"
@@ -22,12 +23,13 @@ Except_T Readaline_Memory_Allocation_Error;
 /* TODO: find out why multiple definitions of exceptions among files won't compile */
 
 
-/* Helper function prototypes */
+/* Helper function prototype */
 void reserveMore(int *vsize, char **datapp);
 
 /********** readaline ********
  *
- * TODO: copy from spec
+ * primary function to process file information into a character array for
+ * restoration. 
  *
  * Parameters:
  *      FILE *inputfd:  pointer to corrupted file from restoration
@@ -47,6 +49,7 @@ void reserveMore(int *vsize, char **datapp);
  *              3. Memory allocation fails
  ************************/
 size_t readaline(FILE *inputfd, char **datapp) {
+        /* arbitrarily initialize first size to be 1000 */
         int vsize = 1000;
 
         /* Check valid arguments, raise CRE if invalid */
@@ -77,6 +80,7 @@ size_t readaline(FILE *inputfd, char **datapp) {
         /* Note: we are adding a null character to the end for printing! */
         *(*datapp + i) = '\0';
 
+        /* return the length of the iteration for the number of bytes */
         return i;
 }
 
